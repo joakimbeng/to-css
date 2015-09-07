@@ -1,6 +1,6 @@
 {
   "name": "to-css",
-  "version": "0.1.0",
+  "version": "1.0.0",
   "description": "Generate CSS from a JavaScript Object",
   "main": "src/index.js",
   "scripts": {

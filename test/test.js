@@ -37,6 +37,13 @@ test('mixed nesting', function (assert) {
 	assert.is(actual, expected);
 });
 
+test('mixed nesting reversed', function (assert) {
+	assert.plan(1);
+	var actual = toCss({'.small': {margin: '10px', li: {'font-size': '10px'}}}, {indent: '\t'});
+	var expected = '.small {\n\tmargin: 10px;\n\tli {\n\t\tfont-size: 10px;\n\t}\n}\n';
+	assert.is(actual, expected);
+});
+
 test('indent as a number', function (assert) {
 	assert.plan(1);
 	var actual = toCss({'.small': {li: {'font-size': '10px'}, margin: 0}}, {indent: 2});
@@ -61,5 +68,12 @@ test('value option', function (assert) {
 	}
 	var actual = toCss({body: {color: 'black'}}, {value: toUpper});
 	var expected = 'body{color:BLACK;}';
+	assert.is(actual, expected);
+});
+
+test('at-rules without body', function (assert) {
+	assert.plan(1);
+	var actual = toCss({'@charset': '"UTF-8"', '@import': '"file.css"'});
+	var expected = '@charset "UTF-8";@import "file.css";';
 	assert.is(actual, expected);
 });

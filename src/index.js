@@ -16,6 +16,10 @@ module.exports = function toCss(object, opts) {
 	return (function _toCss(obj, level) {
 		var str = '';
 		Object.keys(obj).forEach(function (sel) {
+			if (typeof obj[sel] === 'string') {
+				str += rule(opts.property(sel, obj[sel]), opts.value(obj[sel], sel), opts.indent, level - 1);
+				return;
+			}
 			str += start(sel, opts.indent, level);
 			Object.keys(obj[sel]).forEach(function (prop) {
 				if (typeof obj[sel][prop] === 'object') {
@@ -52,7 +56,11 @@ function end(indent, level) {
 
 function rule(prop, val, indent, level) {
 	if (!indent) {
-		return prop + ':' + val + ';';
+		return prop + (isAtRule(prop) ? ' ' : ':') + val + ';';
 	}
-	return repeat(indent, level + 1) + prop + ': ' + val + ';\n';
+	return repeat(indent, level + 1) + prop + (isAtRule(prop) ? ' ' : ': ') + val + ';\n';
+}
+
+function isAtRule(prop) {
+	return prop.indexOf('@') === 0;
 }

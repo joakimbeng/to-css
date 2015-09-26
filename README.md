@@ -30,6 +30,22 @@ toCss({body: {'font-size': '10px'}}, {indent: '  '});
  */
 ```
 
+#### When you want to set a property multiple times
+
+Sometimes you want to have a CSS declaration with the same property specified multiple times with different values, for fallback values. You can use arrays for that, e.g:
+
+```javascript
+var toCss = require('to-css');
+
+toCss({body: {color: ['rgba(0,0,0,.5)', 'black']}}, {indent: '  '});
+/**
+ * body {
+ *   color: rgba(0,0,0,.5);
+ *   color: black;
+ * }
+ */
+```
+
 ## API
 
 ### `toCss(object [, options])`

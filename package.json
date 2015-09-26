@@ -30,6 +30,7 @@
   },
   "repository": "joakimbeng/to-css",
   "dependencies": {
+    "arrify": "^1.0.0",
     "object-assign": "^4.0.1",
     "repeat-string": "^1.5.2"
   }

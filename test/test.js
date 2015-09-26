@@ -77,3 +77,10 @@ test('at-rules without body', function (assert) {
 	var expected = '@charset "UTF-8";@import "file.css";';
 	assert.is(actual, expected);
 });
+
+test('array values', function (assert) {
+	assert.plan(1);
+	var actual = toCss({div: {color: ['rgba(0, 0, 0, .5)', 'black']}});
+	var expected = 'div{color:rgba(0, 0, 0, .5);color:black;}';
+	assert.is(actual, expected);
+});

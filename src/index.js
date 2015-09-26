@@ -1,6 +1,7 @@
 'use strict';
 var repeat = require('repeat-string');
 var assign = require('object-assign');
+var arrify = require('arrify');
 
 module.exports = function toCss(object, opts) {
 	opts = assign({
@@ -13,21 +14,29 @@ module.exports = function toCss(object, opts) {
 		opts.indent = repeat(' ', opts.indent);
 	}
 
+	function values(val, prop) {
+		return arrify(val).map(function (v) {
+			return opts.value(v, prop);
+		});
+	}
+
 	return (function _toCss(obj, level) {
 		var str = '';
 		Object.keys(obj).forEach(function (sel) {
-			if (typeof obj[sel] === 'string') {
-				str += rule(opts.property(sel, obj[sel]), opts.value(obj[sel], sel), opts.indent, level - 1);
+			var value = obj[sel];
+			if (isLastLevel(value)) {
+				str += rule(opts.property(sel, value), values(value, sel), opts.indent, level - 1);
 				return;
 			}
 			str += start(sel, opts.indent, level);
 			Object.keys(obj[sel]).forEach(function (prop) {
-				if (typeof obj[sel][prop] === 'object') {
+				var value = obj[sel][prop];
+				if (oneMoreLevelExists(value)) {
 					var tmp = {};
-					tmp[prop] = obj[sel][prop];
+					tmp[prop] = value;
 					str += _toCss(tmp, level + 1);
 				} else {
-					str += rule(opts.property(prop, obj[sel][prop]), opts.value(obj[sel][prop], prop), opts.indent, level);
+					str += rule(opts.property(prop, value), values(value, prop), opts.indent, level);
 				}
 			});
 			str += end(opts.indent, level);
@@ -35,6 +44,14 @@ module.exports = function toCss(object, opts) {
 		return str;
 	})(object, 0);
 };
+
+function isLastLevel(val) {
+	return typeof val === 'string' || Array.isArray(val);
+}
+
+function oneMoreLevelExists(val) {
+	return typeof val === 'object' && !Array.isArray(val);
+}
 
 function identity(v) {
 	return v;
@@ -56,9 +73,13 @@ function end(indent, level) {
 
 function rule(prop, val, indent, level) {
 	if (!indent) {
-		return prop + (isAtRule(prop) ? ' ' : ':') + val + ';';
+		return val.map(function (v) {
+			return prop + (isAtRule(prop) ? ' ' : ':') + v + ';';
+		}).join('');
 	}
-	return repeat(indent, level + 1) + prop + (isAtRule(prop) ? ' ' : ': ') + val + ';\n';
+	return val.map(function (v) {
+		return repeat(indent, level + 1) + prop + (isAtRule(prop) ? ' ' : ': ') + v + ';\n';
+	}).join('');
 }
 
 function isAtRule(prop) {

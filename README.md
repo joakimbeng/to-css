@@ -136,6 +136,14 @@ Default: `NOOP`
 
 A transform function for property names, gets called for each CSS rule with property and value as params: `options.property(property, value)`. Can return a `String` or an array of strings!
 
+
+#### `options.selector`
+
+Type: `Function`  
+Default: `NOOP`
+
+A transform function for selectors, gets called for each CSS declaration with selector and declaration object as params: `options.selector(selector, declaration)`. Can return a `String` or an array of strings!
+
 ## License
 
 MIT © Joakim Carlstein

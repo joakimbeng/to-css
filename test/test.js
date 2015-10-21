@@ -97,6 +97,29 @@ test('value option returns array', function (assert) {
 	assert.is(actual, expected);
 });
 
+test('selector option', function (assert) {
+	assert.plan(1);
+	function classify(selector) {
+		return '.' + selector;
+	}
+	var actual = toCss({body: {color: 'black'}}, {selector: classify});
+	var expected = '.body{color:black;}';
+	assert.is(actual, expected);
+});
+
+test('selector option returns array', function (assert) {
+	assert.plan(1);
+	function prefix(selector) {
+		if (selector.indexOf('@keyframes') === 0) {
+			return ['@-webkit-' + selector.slice(1), selector];
+		}
+		return selector;
+	}
+	var actual = toCss({'@keyframes test': {from: {opacity: 0}, to: {opacity: 1}}}, {selector: prefix});
+	var expected = '@-webkit-keyframes test{from{opacity:0;}to{opacity:1;}}@keyframes test{from{opacity:0;}to{opacity:1;}}';
+	assert.is(actual, expected);
+});
+
 test('at-rules without body', function (assert) {
 	assert.plan(1);
 	var actual = toCss({'@charset': '"UTF-8"', '@import': '"file.css"'});

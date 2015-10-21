@@ -7,7 +7,8 @@ module.exports = function toCss(object, opts) {
 	opts = objectAssign({
 		indent: '',
 		property: identity,
-		value: identity
+		value: identity,
+		selector: identity
 	}, opts);
 
 	if (typeof opts.indent === 'number') {
@@ -26,6 +27,12 @@ module.exports = function toCss(object, opts) {
 		}, []);
 	}
 
+	function selectors(sel, value) {
+		return arrify(sel).reduce(function (sels, s) {
+			return sels.concat(opts.selector(s, value));
+		}, []);
+	}
+
 	function _toCss(obj, level) {
 		var str = '';
 		Object.keys(obj).forEach(function (sel) {
@@ -39,16 +46,18 @@ module.exports = function toCss(object, opts) {
 				});
 				return;
 			}
-			str += start(sel, opts.indent, level);
-			Object.keys(value).forEach(function (prop) {
-				var value = obj[sel][prop];
-				if (oneMoreLevelExists(value)) {
-					str += _toCss(nest(prop, value), level + 1);
-				} else {
-					str += rule(props(prop, value), values(value, prop), opts.indent, level);
-				}
+			selectors(sel, value).forEach(function (selector) {
+				str += start(selector, opts.indent, level);
+				Object.keys(value).forEach(function (prop) {
+					var value = obj[sel][prop];
+					if (oneMoreLevelExists(value)) {
+						str += _toCss(nest(prop, value), level + 1);
+					} else {
+						str += rule(props(prop, value), values(value, prop), opts.indent, level);
+					}
+				});
+				str += end(opts.indent, level);
 			});
-			str += end(opts.indent, level);
 		});
 		return str;
 	}

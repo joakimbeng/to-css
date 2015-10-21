@@ -61,6 +61,19 @@ test('property option', function (assert) {
 	assert.is(actual, expected);
 });
 
+test('property option returns array', function (assert) {
+	assert.plan(1);
+	function prefix(prop) {
+		if (prop === 'flex') {
+			return ['-webkit-box-flex', '-webkit-flex', '-ms-flex', prop];
+		}
+		return prop;
+	}
+	var actual = toCss({body: {flex: 1}}, {property: prefix});
+	var expected = 'body{-webkit-box-flex:1;-webkit-flex:1;-ms-flex:1;flex:1;}';
+	assert.is(actual, expected);
+});
+
 test('value option', function (assert) {
 	assert.plan(1);
 	function toUpper(val) {
@@ -68,6 +81,19 @@ test('value option', function (assert) {
 	}
 	var actual = toCss({body: {color: 'black'}}, {value: toUpper});
 	var expected = 'body{color:BLACK;}';
+	assert.is(actual, expected);
+});
+
+test('value option returns array', function (assert) {
+	assert.plan(1);
+	function prefix(val, prop) {
+		if (prop === 'display' && val === 'flex') {
+			return ['-webkit-box', '-ms-flexbox', '-webkit-flex', val];
+		}
+		return val;
+	}
+	var actual = toCss({body: {display: 'flex'}}, {value: prefix});
+	var expected = 'body{display:-webkit-box;display:-ms-flexbox;display:-webkit-flex;display:flex;}';
 	assert.is(actual, expected);
 });
 

@@ -126,7 +126,7 @@ Works like [JSON.stringify's space parameter](https://developer.mozilla.org/en-U
 Type: `Function`  
 Default: `NOOP`
 
-A transform function for property values, gets called for each CSS rule with value and property as params: `options.value(value, property)`. *Must* return a `String`!
+A transform function for property values, gets called for each CSS rule with value and property as params: `options.value(value, property)`. Can return a `String` or an array of strings!
 
 
 #### `options.property`
@@ -134,7 +134,7 @@ A transform function for property values, gets called for each CSS rule with val
 Type: `Function`  
 Default: `NOOP`
 
-A transform function for property names, gets called for each CSS rule with property and value as params: `options.property(property, value)`. *Must* return a `String`!
+A transform function for property names, gets called for each CSS rule with property and value as params: `options.property(property, value)`. Can return a `String` or an array of strings!
 
 ## License
 

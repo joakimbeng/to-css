@@ -14,10 +14,16 @@ module.exports = function toCss(object, opts) {
 		opts.indent = repeatString(' ', opts.indent);
 	}
 
+	function props(prop, val) {
+		return arrify(prop).reduce(function (props, p) {
+			return props.concat(opts.property(p, val));
+		}, []);
+	}
+
 	function values(val, prop) {
-		return arrify(val).map(function (v) {
-			return opts.value(v, prop);
-		});
+		return arrify(val).reduce(function (vals, v) {
+			return vals.concat(opts.value(v, prop));
+		}, []);
 	}
 
 	function _toCss(obj, level) {
@@ -25,7 +31,7 @@ module.exports = function toCss(object, opts) {
 		Object.keys(obj).forEach(function (sel) {
 			var value = obj[sel];
 			if (isLastLevel(value)) {
-				str += rule(opts.property(sel, value), values(value, sel), opts.indent, level - 1);
+				str += rule(props(sel, value), values(value, sel), opts.indent, level - 1);
 				return;
 			} else if (Array.isArray(value)) {
 				value.forEach(function (val) {
@@ -39,7 +45,7 @@ module.exports = function toCss(object, opts) {
 				if (oneMoreLevelExists(value)) {
 					str += _toCss(nest(prop, value), level + 1);
 				} else {
-					str += rule(opts.property(prop, value), values(value, prop), opts.indent, level);
+					str += rule(props(prop, value), values(value, prop), opts.indent, level);
 				}
 			});
 			str += end(opts.indent, level);
@@ -72,29 +78,40 @@ function identity(v) {
 	return v;
 }
 
+function lineStart(indent, level) {
+	return indent ? repeatString(indent, level) : '';
+}
+
+function space(indent) {
+	return indent ? ' ' : '';
+}
+
+function lineEnd(indent) {
+	return indent ? '\n' : '';
+}
+
 function start(sel, indent, level) {
-	if (!indent) {
-		return sel + '{';
-	}
-	return repeatString(indent, level) + sel + ' {\n';
+	return lineStart(indent, level) + sel + space(indent) + '{' + lineEnd(indent);
 }
 
 function end(indent, level) {
-	if (!indent) {
-		return '}';
-	}
-	return repeatString(indent, level) + '}\n';
+	return lineStart(indent, level) + '}' + lineEnd(indent);
 }
 
-function rule(prop, val, indent, level) {
-	if (!indent) {
-		return val.map(function (v) {
-			return prop + (isAtRule(prop) ? ' ' : ':') + v + ';';
-		}).join('');
+function rule(props, values, indent, level) {
+	var linestart = lineStart(indent, level + 1);
+	var lineend = lineEnd(indent);
+	var s = space(indent);
+
+	var str = '';
+
+	for (var i = 0, propLength = props.length; i < propLength; i++) {
+		for (var j = 0, valueLength = values.length; j < valueLength; j++) {
+			str += linestart + props[i] + (isAtRule(props[i]) ? ' ' : ':') + s + values[j] + ';' + lineend;
+		}
 	}
-	return val.map(function (v) {
-		return repeatString(indent, level + 1) + prop + (isAtRule(prop) ? ' ' : ': ') + v + ';\n';
-	}).join('');
+
+	return str;
 }
 
 function isAtRule(prop) {

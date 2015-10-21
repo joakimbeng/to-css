@@ -78,9 +78,31 @@ test('at-rules without body', function (assert) {
 	assert.is(actual, expected);
 });
 
+test('array', function (assert) {
+	assert.plan(1);
+	var actual = toCss([
+		{body: {color: 'white'}},
+		{body: {color: 'rgba(255, 255, 255, .95)'}}
+	]);
+	var expected = 'body{color:white;}body{color:rgba(255, 255, 255, .95);}';
+	assert.is(actual, expected);
+});
+
 test('array values', function (assert) {
 	assert.plan(1);
 	var actual = toCss({div: {color: ['rgba(0, 0, 0, .5)', 'black']}});
 	var expected = 'div{color:rgba(0, 0, 0, .5);color:black;}';
+	assert.is(actual, expected);
+});
+
+test('array declarations', function (assert) {
+	assert.plan(1);
+	var actual = toCss({
+		'@font-face': [
+			{'font-family': 'MyFont', 'src': 'url(my-font.ttf)'},
+			{'font-family': 'OtherFont', 'src': 'url(other-font.ttf)'}
+		]
+	});
+	var expected = '@font-face{font-family:MyFont;src:url(my-font.ttf);}@font-face{font-family:OtherFont;src:url(other-font.ttf);}';
 	assert.is(actual, expected);
 });

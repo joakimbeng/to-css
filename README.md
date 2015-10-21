@@ -30,7 +30,7 @@ toCss({body: {'font-size': '10px'}}, {indent: '  '});
  */
 ```
 
-#### When you want to set a property multiple times
+#### Array values - When you want to set a property multiple times
 
 Sometimes you want to have a CSS declaration with the same property specified multiple times with different values, for fallback values. You can use arrays for that, e.g:
 
@@ -46,13 +46,69 @@ toCss({body: {color: ['rgba(0,0,0,.5)', 'black']}}, {indent: '  '});
  */
 ```
 
+#### Array declarations - E.g. for `@font-face`
+
+Defining multiple `@font-face`'s can be done using arrays like this:
+
+```javascript
+var toCss = require('to-css');
+
+toCss({
+	'@font-face': [
+		{'font-family': '"MyWebFont"', src: 'url("myfont.woff2") format("woff2"), url("myfont.woff") format("woff")'},
+		{'font-family': 'MyOtherFont', src: 'url("otherfont.woff2") format("woff2"), url("otherfont.woff") format("woff")'}
+	]
+});
+/**
+ * @font-face {
+ *   font-family: "MyWebFont";
+ *   src: url("myfont.woff2") format("woff2"), url("myfont.woff") format("woff");
+ * }
+ * @font-face {
+ *   font-family: "MyOtherFont";
+ *   src: url("otherfont.woff2") format("woff2"), url("otherfont.woff") format("woff");
+ * }
+ */
+```
+
+Or like this:
+
+```javascript
+var toCss = require('to-css');
+
+toCss([
+	{
+		'@font-face': {
+			'font-family': '"MyWebFont"',
+			src: 'url("myfont.woff2") format("woff2"), url("myfont.woff") format("woff")'
+		}
+	},
+	{
+		'@font-face': {
+			'font-family': 'MyOtherFont',
+			src: 'url("otherfont.woff2") format("woff2"), url("otherfont.woff") format("woff")'
+		}
+	}
+]);
+/**
+ * @font-face {
+ *   font-family: "MyWebFont";
+ *   src: url("myfont.woff2") format("woff2"), url("myfont.woff") format("woff");
+ * }
+ * @font-face {
+ *   font-family: "MyOtherFont";
+ *   src: url("otherfont.woff2") format("woff2"), url("otherfont.woff") format("woff");
+ * }
+ */
+```
+
 ## API
 
 ### `toCss(object [, options])`
 
 | Name | Type | Description |
 |------|------|-------------|
-| object | `Object` | Object to generate a CSS string from |
+| object | `Object|Array` | Object or array to generate a CSS string from |
 | options | `Object` | Options |
 
 Returns: `String`, the generated CSS string.

@@ -1,17 +1,17 @@
 'use strict';
-var repeat = require('repeat-string');
-var assign = require('object-assign');
+var repeatString = require('repeat-string');
+var objectAssign = require('object-assign');
 var arrify = require('arrify');
 
 module.exports = function toCss(object, opts) {
-	opts = assign({
+	opts = objectAssign({
 		indent: '',
 		property: identity,
 		value: identity
 	}, opts);
 
 	if (typeof opts.indent === 'number') {
-		opts.indent = repeat(' ', opts.indent);
+		opts.indent = repeatString(' ', opts.indent);
 	}
 
 	function values(val, prop) {
@@ -20,21 +20,24 @@ module.exports = function toCss(object, opts) {
 		});
 	}
 
-	return (function _toCss(obj, level) {
+	function _toCss(obj, level) {
 		var str = '';
 		Object.keys(obj).forEach(function (sel) {
 			var value = obj[sel];
 			if (isLastLevel(value)) {
 				str += rule(opts.property(sel, value), values(value, sel), opts.indent, level - 1);
 				return;
+			} else if (Array.isArray(value)) {
+				value.forEach(function (val) {
+					str += _toCss(nest(sel, val), level + 1);
+				});
+				return;
 			}
 			str += start(sel, opts.indent, level);
-			Object.keys(obj[sel]).forEach(function (prop) {
+			Object.keys(value).forEach(function (prop) {
 				var value = obj[sel][prop];
 				if (oneMoreLevelExists(value)) {
-					var tmp = {};
-					tmp[prop] = value;
-					str += _toCss(tmp, level + 1);
+					str += _toCss(nest(prop, value), level + 1);
 				} else {
 					str += rule(opts.property(prop, value), values(value, prop), opts.indent, level);
 				}
@@ -42,11 +45,23 @@ module.exports = function toCss(object, opts) {
 			str += end(opts.indent, level);
 		});
 		return str;
-	})(object, 0);
+	}
+
+	return arrify(object)
+		.map(function (o) {
+			return _toCss(o, 0);
+		})
+		.join(opts.indent ? '\n' : '');
 };
 
+function nest(prop, val) {
+	var tmp = {};
+	tmp[prop] = val;
+	return tmp;
+}
+
 function isLastLevel(val) {
-	return typeof val === 'string' || Array.isArray(val);
+	return typeof val === 'string' || Array.isArray(val) && val.length && typeof val[0] !== 'object';
 }
 
 function oneMoreLevelExists(val) {
@@ -61,14 +76,14 @@ function start(sel, indent, level) {
 	if (!indent) {
 		return sel + '{';
 	}
-	return repeat(indent, level) + sel + ' {\n';
+	return repeatString(indent, level) + sel + ' {\n';
 }
 
 function end(indent, level) {
 	if (!indent) {
 		return '}';
 	}
-	return repeat(indent, level) + '}\n';
+	return repeatString(indent, level) + '}\n';
 }
 
 function rule(prop, val, indent, level) {
@@ -78,7 +93,7 @@ function rule(prop, val, indent, level) {
 		}).join('');
 	}
 	return val.map(function (v) {
-		return repeat(indent, level + 1) + prop + (isAtRule(prop) ? ' ' : ': ') + v + ';\n';
+		return repeatString(indent, level + 1) + prop + (isAtRule(prop) ? ' ' : ': ') + v + ';\n';
 	}).join('');
 }
 

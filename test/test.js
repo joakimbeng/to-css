@@ -155,3 +155,17 @@ test('array declarations', function (assert) {
 	var expected = '@font-face{font-family:MyFont;src:url(my-font.ttf);}@font-face{font-family:OtherFont;src:url(other-font.ttf);}';
 	assert.is(actual, expected);
 });
+
+test('array declarations with indentation', function (assert) {
+	assert.plan(1);
+	var actual = toCss({
+		'@font-face': [
+			{'font-family': 'MyFont', 'src': 'url(my-font.ttf)'},
+			{'font-family': 'OtherFont', 'src': 'url(other-font.ttf)'}
+		]
+	}, {
+		indent: '\t'
+	});
+	var expected = '@font-face {\n\tfont-family: MyFont;\n\tsrc: url(my-font.ttf);\n}\n@font-face {\n\tfont-family: OtherFont;\n\tsrc: url(other-font.ttf);\n}\n';
+	assert.is(actual, expected);
+});

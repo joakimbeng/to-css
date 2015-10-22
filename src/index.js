@@ -42,7 +42,7 @@ module.exports = function toCss(object, opts) {
 				return;
 			} else if (Array.isArray(value)) {
 				value.forEach(function (val) {
-					str += _toCss(nest(sel, val), level + 1);
+					str += _toCss(nest(sel, val), level);
 				});
 				return;
 			}
@@ -66,7 +66,7 @@ module.exports = function toCss(object, opts) {
 		.map(function (o) {
 			return _toCss(o, 0);
 		})
-		.join(opts.indent ? '\n' : '');
+		.join(lineEnd(opts.indent));
 };
 
 function nest(prop, val) {
